@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Quiz Result{% endblock %}
+{% block content %}
+<div class="section" style="max-width:700px;">
+  <div style="background:{% if percentage >= 70 %}linear-gradient(135deg,var(--pine),#1b4332){% else %}linear-gradient(135deg,#7a1921,var(--danger)){% endif %};color:white;padding:2.5rem;border-radius:var(--radius);margin-bottom:2rem;text-align:center;">
+    <div style="font-size:4rem;margin-bottom:0.75rem;">{% if percentage >= 70 %}🏆{% else %}📖{% endif %}</div>
+    <h1 style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;margin-bottom:0.5rem;">
+      {% if percentage >= 70 %}Great Job!{% else %}Keep Practicing!{% endif %}
+    </h1>
+    <div style="font-size:3rem;font-weight:900;font-family:'Playfair Display',serif;margin:0.75rem 0;">{{ percentage }}%</div>
+    <p style="opacity:0.85;">You got {{ score }} out of {{ total }} correct</p>
+  </div>
+
+  <h2 style="font-family:'Playfair Display',serif;color:var(--forest);margin-bottom:1.25rem;">Review Answers</h2>
+  {% for result in results %}
+  <div style="background:white;border-radius:12px;padding:1.25rem;margin-bottom:1rem;border-left:4px solid {% if result.correct %}var(--moss){% else %}var(--danger){% endif %};box-shadow:var(--shadow);">
+    <p style="font-weight:700;color:var(--forest);margin-bottom:0.75rem;">{{ forloop.counter }}. {{ result.question.text }}</p>
+    {% if result.correct %}
+      <p style="color:var(--pine);font-weight:700;font-size:0.9rem;">✅ Your answer: {{ result.answer }} — Correct!</p>
+    {% else %}
+      <p style="color:var(--danger);font-weight:700;font-size:0.9rem;">❌ Your answer: {{ result.answer }}</p>
+      <p style="color:var(--pine);font-weight:700;font-size:0.9rem;">✅ Correct: {{ result.question.correct_option }}</p>
+    {% endif %}
+  </div>
+  {% endfor %}
+
+  <div style="display:flex;gap:1rem;margin-top:1.5rem;flex-wrap:wrap;">
+    <a href="{% url 'quiz_view' quiz.pk %}" class="btn btn-outline">🔄 Retake Quiz</a>
+    <a href="{% url 'my_courses' %}" class="btn btn-primary">📚 My Courses</a>
+  </div>
+</div>
+{% endblock %}

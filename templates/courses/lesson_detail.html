@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}{{ lesson.title }}{% endblock %}
+{% block content %}
+
+<div style="display:grid; grid-template-columns:280px 1fr; min-height:calc(100vh - 64px); gap:0;">
+
+  <!-- Sidebar -->
+  <aside style="background:white; border-right:1px solid #e8e8e8; padding:1.25rem; overflow-y:auto; position:sticky; top:64px; max-height:calc(100vh - 64px);">
+    <div style="margin-bottom:1.25rem; padding-bottom:1rem; border-bottom:1px solid #f0f0f0;">
+      <a href="{% url 'course_detail' course.pk %}" style="font-size:0.8rem; color:var(--moss); font-weight:700; text-decoration:none; display:flex; align-items:center; gap:4px; margin-bottom:0.5rem;">← Back to Course</a>
+      <div style="font-family:'Playfair Display',serif; font-size:0.95rem; font-weight:700; color:var(--forest); line-height:1.3;">{{ course.title }}</div>
+    </div>
+    <div style="margin-bottom:0.75rem;">
+      <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:700; color:var(--stone); margin-bottom:4px;">
+        <span>Progress</span><span>{{ enrollment.progress }}%</span>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-bar" data-pct="{{ enrollment.progress }}"></div>
+      </div>
+    </div>
+    <ul class="lesson-list">
+      {% for l in lessons %}
+      <li>
+        <a href="{% url 'lesson_detail' course.pk l.pk %}"
+           class="lesson-item {% if l.id in completed_ids %}completed{% endif %} {% if l.pk == lesson.pk %}active{% endif %}"
+           data-num="{{ forloop.counter }}">
+          <div>
+            <div style="font-size:0.85rem;">{{ l.title }}</div>
+            <div style="font-size:0.72rem; color:var(--stone);">{{ l.duration_minutes }} min</div>
+          </div>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </aside>
+
+  <!-- Main content -->
+  <div style="padding:2rem; max-width:860px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+      <div>
+        <div style="font-size:0.8rem; color:var(--stone); font-weight:700; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px;">Lesson {{ lesson.order }}</div>
+        <h1 style="font-family:'Playfair Display',serif; font-size:1.8rem; font-weight:900; color:var(--forest); line-height:1.2;">{{ lesson.title }}</h1>
+      </div>
+      {% if progress_obj.completed %}
+        <span class="badge badge-moss" style="font-size:0.85rem; padding:0.4rem 1rem;">✅ Completed</span>
+      {% endif %}
+    </div>
+
+    <!-- Video -->
+    {% if lesson.video_file %}
+    <div style="background:#000; border-radius:12px; overflow:hidden; margin-bottom:1.5rem; aspect-ratio:16/9;">
+      <video controls style="width:100%; height:100%; display:block;" preload="metadata">
+        <source src="{{ lesson.video_file.url }}">
+        Your browser does not support video playback.
+      </video>
+    </div>
+    {% endif %}
+
+    <!-- Lesson Content -->
+    <div class="lesson-content-box" style="margin-bottom:1.5rem;">
+      {{ lesson.content|linebreaks }}
+    </div>
+
+    <!-- PDF Download -->
+    {% if lesson.pdf_file %}
+    <div style="background:#f0f8f4; border:1.5px solid var(--moss); border-radius:12px; padding:1.1rem 1.25rem; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+      <div>
+        <div style="font-weight:800; color:var(--pine);">📄 Lesson PDF Available</div>
+        <div style="font-size:0.83rem; color:var(--stone);">Download for offline reference</div>
+      </div>
+      <a href="{{ lesson.pdf_file.url }}" download class="btn btn-primary btn-sm pdf-link">📥 Download PDF</a>
+    </div>
+    {% endif %}
+
+    <!-- Mark complete -->
+    {% if not progress_obj.completed %}
+    <form method="post" style="margin-bottom:1.5rem;">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-gold" style="font-size:0.95rem;">✅ Mark as Complete</button>
+    </form>
+    {% endif %}
+
+    <!-- Navigation -->
+    <div style="display:flex; justify-content:space-between; padding-top:1.5rem; border-top:1px solid #eee; flex-wrap:wrap; gap:0.75rem;">
+      {% for l in lessons %}
+        {% if l.pk == lesson.pk %}
+          {% if not forloop.first %}
+            {% with lessons|slice:forloop.counter0 as prev_idx %}
+              {# Workaround for previous lesson #}
+            {% endwith %}
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+      <a href="{% url 'course_detail' course.pk %}" class="btn btn-outline btn-sm">← Back to Course</a>
+      {% for l in lessons %}
+        {% if forloop.counter == enrollment.progress|add:1 %}
+          {% if l.pk != lesson.pk %}
+            <a href="{% url 'lesson_detail' course.pk l.pk %}" class="btn btn-primary btn-sm">Next Lesson →</a>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

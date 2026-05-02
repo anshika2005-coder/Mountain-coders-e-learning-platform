@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}My Profile{% endblock %}
+{% block content %}
+
+<div class="profile-header">
+  <div class="avatar-circle">{{ user.first_name.0|default:user.username.0|upper }}</div>
+  <h1 style="font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;margin-bottom:0.25rem;">
+    {{ user.get_full_name|default:user.username }}
+  </h1>
+  <p style="opacity:0.75;">📍 {{ profile.village }}{% if profile.district %}, {{ profile.district }}{% endif %}{% if profile.state %}, {{ profile.state }}{% endif %}</p>
+  <span class="badge badge-moss" style="margin-top:0.5rem;display:inline-block;">{{ profile.get_role_display }}</span>
+</div>
+
+<div class="section" style="max-width:700px;">
+  <h2 class="section-title">✏️ Edit Profile</h2>
+  <div style="background:white;border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow);">
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-row">
+        <div class="form-group">
+          <label>First Name</label>
+          <input type="text" name="first_name" class="form-control" value="{{ user.first_name }}">
+        </div>
+        <div class="form-group">
+          <label>Last Name</label>
+          <input type="text" name="last_name" class="form-control" value="{{ user.last_name }}">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" class="form-control" value="{{ user.email }}">
+      </div>
+      <div class="form-group">
+        <label>Bio</label>
+        <textarea name="bio" class="form-control" rows="3" placeholder="Tell us about yourself...">{{ profile.bio }}</textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Village / Town</label>
+          <input type="text" name="village" class="form-control" value="{{ profile.village }}">
+        </div>
+        <div class="form-group">
+          <label>District</label>
+          <input type="text" name="district" class="form-control" value="{{ profile.district }}">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>State</label>
+          <select name="state" class="form-control">
+            {% for s in "Uttarakhand,Himachal Pradesh,Jammu & Kashmir,Sikkim,Arunachal Pradesh,Other"|split:"," %}
+              <option value="{{ s }}" {% if profile.state == s %}selected{% endif %}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="tel" name="phone" class="form-control" value="{{ profile.phone }}" placeholder="Optional">
+        </div>
+      </div>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:0.5rem;">
+        <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+        <a href="{% url 'my_courses' %}" class="btn btn-outline">📚 My Courses</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

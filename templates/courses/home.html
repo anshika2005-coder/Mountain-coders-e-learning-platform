@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div>
+      <h1>Learn Without <span>Limits</span>,<br>Even Without Internet</h1>
+      <p>Mountain Coders is India's first offline-first e-learning platform built for students in remote villages and mountain regions. Download lessons, study at your own pace — internet or not.</p>
+      <div class="hero-buttons">
+        <a href="{% url 'course_list' %}" class="btn btn-primary">🎓 Explore Courses</a>
+        {% if not user.is_authenticated %}
+          <a href="{% url 'register' %}" class="btn btn-secondary">Join Free →</a>
+        {% else %}
+          <a href="{% url 'my_courses' %}" class="btn btn-secondary">My Learning →</a>
+        {% endif %}
+      </div>
+    </div>
+    <div class="hero-visual">
+      <svg class="mountain-svg" viewBox="0 0 400 280" xmlns="http://www.w3.org/2000/svg">
+        <!-- Sky background -->
+        <defs>
+          <linearGradient id="sky-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0d2137" stop-opacity="0.9"/>
+            <stop offset="100%" stop-color="#1a3d2b" stop-opacity="0.6"/>
+          </linearGradient>
+          <linearGradient id="mountain-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#2d6a4f"/>
+            <stop offset="100%" stop-color="#1a3d2b"/>
+          </linearGradient>
+          <linearGradient id="snow-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="100%" stop-color="#caf0f8"/>
+          </linearGradient>
+        </defs>
+        <!-- Stars -->
+        <circle cx="50" cy="30" r="1.5" fill="#fff" opacity="0.8"/>
+        <circle cx="120" cy="20" r="1" fill="#fff" opacity="0.6"/>
+        <circle cx="200" cy="15" r="1.5" fill="#fff" opacity="0.9"/>
+        <circle cx="310" cy="25" r="1" fill="#fff" opacity="0.7"/>
+        <circle cx="360" cy="40" r="1.5" fill="#fff" opacity="0.8"/>
+        <circle cx="80" cy="50" r="1" fill="#e9c46a" opacity="0.9"/>
+        <!-- Back mountains -->
+        <polygon points="80,180 180,60 280,180" fill="#1a3d2b" opacity="0.7"/>
+        <polygon points="160,180 270,50 380,180" fill="#1b4332" opacity="0.6"/>
+        <!-- Main mountain -->
+        <polygon points="10,220 200,30 390,220" fill="url(#mountain-grad)"/>
+        <!-- Snow cap -->
+        <polygon points="180,30 200,30 240,90 220,100 200,85 180,100 160,90" fill="url(#snow-grad)" opacity="0.95"/>
+        <!-- Forest line -->
+        <polygon points="10,220 60,160 120,185 180,150 240,175 300,155 360,180 390,220" fill="#0f2d1e"/>
+        <!-- Small trees -->
+        <polygon points="70,200 80,175 90,200" fill="#2d6a4f"/>
+        <polygon points="100,205 112,178 124,205" fill="#2d6a4f"/>
+        <polygon points="280,198 292,170 304,198" fill="#2d6a4f"/>
+        <polygon points="315,202 325,178 335,202" fill="#2d6a4f"/>
+        <!-- School/house at base -->
+        <rect x="185" y="200" width="30" height="20" fill="#e9c46a" rx="2"/>
+        <polygon points="183,200 200,185 217,200" fill="#d4a017"/>
+        <rect x="192" y="208" width="8" height="12" fill="#1a3d2b"/>
+        <!-- Wifi/signal off icon -->
+        <text x="288" y="100" font-size="28" fill="#e9c46a" opacity="0.9">📶</text>
+        <line x1="285" y1="78" x2="320" y2="113" stroke="#e63946" stroke-width="3" stroke-linecap="round"/>
+        <!-- Book icon floating -->
+        <text x="28" y="120" font-size="24" fill="#52b788" opacity="0.85">📚</text>
+        <!-- Ground -->
+        <rect x="0" y="218" width="400" height="62" fill="#1a3d2b"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="hero-stats">
+  <div class="stat-item">
+    <div class="stat-num">{{ stats.courses }}</div>
+    <div class="stat-label">Courses</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">{{ stats.students }}</div>
+    <div class="stat-label">Students Enrolled</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">{{ stats.lessons }}</div>
+    <div class="stat-label">Lessons Available</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">100</div>
+    <div class="stat-label">% Free Content</div>
+  </div>
+</div>
+
+<!-- ANNOUNCEMENTS -->
+{% if announcements %}
+<div class="section" style="padding-bottom: 0;">
+  <h2 class="section-title">📢 Announcements</h2>
+  <p class="section-sub">Latest updates from Mountain Coders</p>
+  {% for a in announcements %}
+  <div class="announcement-card">
+    <h4>{{ a.title }}</h4>
+    <p>{{ a.message }}</p>
+    <small style="color:#856404; font-weight:700;">{{ a.created_at|date:"d M Y" }}</small>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- CATEGORIES -->
+<div class="section" style="padding-bottom: 0;">
+  <h2 class="section-title">📂 Browse by Subject</h2>
+  <p class="section-sub">Find courses by your area of interest</p>
+  <div class="category-chips">
+    <a href="{% url 'course_list' %}" class="chip active">🌐 All Subjects</a>
+    {% for cat in categories %}
+    <a href="{% url 'course_list' %}?category={{ cat.id }}" class="chip">{{ cat.icon }} {{ cat.name }}</a>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- COURSES -->
+<div class="section">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+    <div>
+      <h2 class="section-title">📖 Featured Courses</h2>
+      <p class="section-sub">Handpicked for rural learners</p>
+    </div>
+    <a href="{% url 'course_list' %}" class="btn btn-outline">View All →</a>
+  </div>
+  <div class="course-grid">
+    {% for course in courses %}
+    <a href="{% url 'course_detail' course.pk %}" class="course-card">
+      <div class="course-thumb">
+        {% if course.thumbnail %}
+          <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}" style="width:100%;height:100%;object-fit:cover;">
+        {% else %}
+          {{ course.category.icon|default:"📚" }}
+        {% endif %}
+      </div>
+      <div class="course-body">
+        <div class="course-meta">
+          {% if course.category %}<span class="badge badge-moss">{{ course.category.name }}</span>{% endif %}
+          <span class="badge {% if course.level == 'beginner' %}badge-sky{% elif course.level == 'intermediate' %}badge-gold{% else %}badge-earth{% endif %}">
+            {{ course.get_level_display }}
+          </span>
+          {% if course.is_offline_available %}
+          <span class="offline-badge">📥 Offline</span>
+          {% endif %}
+        </div>
+        <h3 class="course-title">{{ course.title }}</h3>
+        <p class="course-desc">{{ course.description|truncatewords:18 }}</p>
+        <div class="course-footer">
+          <span>📖 {{ course.lesson_count }} lessons</span>
+          <span>⏱ {{ course.total_duration }}</span>
+          <span>🗣 {{ course.language }}</span>
+        </div>
+      </div>
+    </a>
+    {% empty %}
+    <div style="grid-column:1/-1; text-align:center; padding:3rem; color:var(--stone);">
+      <div style="font-size:3rem; margin-bottom:1rem;">📚</div>
+      <p>No courses available yet. Check back soon!</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div style="background: linear-gradient(135deg, var(--forest), var(--pine)); color:white; padding:4rem 2rem; margin:2rem 0;">
+  <div class="section" style="padding: 0; max-width:1100px; margin:0 auto;">
+    <h2 class="section-title" style="color:var(--gold);">How Mountain Coders Works</h2>
+    <p class="section-sub" style="color:rgba(255,255,255,0.7);">Three simple steps to start learning</p>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:2rem; margin-top:2rem;">
+      {% for step in "123" %}
+        {% if forloop.counter == 1 %}
+        <div style="text-align:center; padding:1.5rem;">
+          <div style="font-size:3rem; margin-bottom:1rem;">📝</div>
+          <h3 style="font-family:'Playfair Display',serif; font-size:1.2rem; margin-bottom:0.5rem; color:var(--gold);">1. Register Free</h3>
+          <p style="opacity:0.82; font-size:0.9rem; line-height:1.6;">Create your account with just your name and village. No email required. Takes 30 seconds.</p>
+        </div>
+        {% elif forloop.counter == 2 %}
+        <div style="text-align:center; padding:1.5rem;">
+          <div style="font-size:3rem; margin-bottom:1rem;">📥</div>
+          <h3 style="font-family:'Playfair Display',serif; font-size:1.2rem; margin-bottom:0.5rem; color:var(--gold);">2. Download Content</h3>
+          <p style="opacity:0.82; font-size:0.9rem; line-height:1.6;">Enroll in any course and download all materials — videos, PDFs, notes — to your device when connected.</p>
+        </div>
+        {% elif forloop.counter == 3 %}
+        <div style="text-align:center; padding:1.5rem;">
+          <div style="font-size:3rem; margin-bottom:1rem;">🏆</div>
+          <h3 style="font-family:'Playfair Display',serif; font-size:1.2rem; margin-bottom:0.5rem; color:var(--gold);">3. Learn Offline</h3>
+          <p style="opacity:0.82; font-size:0.9rem; line-height:1.6;">Study anytime, anywhere — even without internet. Complete quizzes, track progress, earn certificates.</p>
+        </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <div style="text-align:center; margin-top:2.5rem;">
+      <a href="{% url 'register' %}" class="btn btn-gold" style="font-size:1rem; padding:0.85rem 2.5rem;">
+        🚀 Start Learning Today — It's Free!
+      </a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

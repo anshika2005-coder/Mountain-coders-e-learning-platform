@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% block title %}{{ course.title }}{% endblock %}
+{% block content %}
+
+<div class="course-detail-header">
+  <div class="course-detail-inner">
+    <div>
+      <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem;">
+        {% if course.category %}<span class="badge badge-moss">{{ course.category.icon }} {{ course.category.name }}</span>{% endif %}
+        <span class="badge {% if course.level == 'beginner' %}badge-sky{% elif course.level == 'intermediate' %}badge-gold{% else %}badge-earth{% endif %}">
+          {{ course.get_level_display }}
+        </span>
+        {% if course.is_offline_available %}<span class="offline-badge">📥 Offline Available</span>{% endif %}
+      </div>
+      <h1 style="font-family:'Playfair Display',serif; font-size:clamp(1.6rem,3vw,2.5rem); font-weight:900; margin-bottom:0.75rem; line-height:1.2;">{{ course.title }}</h1>
+      <p style="opacity:0.85; font-size:1.05rem; line-height:1.65; max-width:600px; margin-bottom:1.5rem;">{{ course.description }}</p>
+      <div style="display:flex; gap:2rem; flex-wrap:wrap; font-size:0.88rem; opacity:0.8; font-weight:600;">
+        <span>📖 {{ course.lesson_count }} Lessons</span>
+        <span>⏱ {{ course.total_duration }}</span>
+        <span>🗣 {{ course.language }}</span>
+        {% if course.instructor %}<span>👨‍🏫 {{ course.instructor.get_full_name|default:course.instructor.username }}</span>{% endif %}
+      </div>
+    </div>
+
+    <!-- Enroll Card -->
+    <div class="course-detail-card">
+      <div style="text-align:center; margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid #f0f0f0;">
+        <div class="price-label">Course Fee</div>
+        <div class="price-free">FREE</div>
+        <div style="font-size:0.78rem; color:var(--stone); margin-top:3px;">Always free for students</div>
+      </div>
+      {% if user.is_authenticated %}
+        {% if is_enrolled %}
+          <div style="background:#d8f3dc; color:var(--pine); padding:0.65rem 1rem; border-radius:10px; font-weight:700; font-size:0.9rem; text-align:center; margin-bottom:1rem;">
+            ✅ You are enrolled!
+          </div>
+          {% if enrollment.progress > 0 %}
+          <div style="margin-bottom:1rem;">
+            <div style="display:flex; justify-content:space-between; font-size:0.82rem; font-weight:700; color:var(--stone); margin-bottom:4px;">
+              <span>Progress</span><span>{{ enrollment.progress }}%</span>
+            </div>
+            <div class="progress-wrap">
+              <div class="progress-bar" data-pct="{{ enrollment.progress }}"></div>
+            </div>
+          </div>
+          {% endif %}
+          {% if lessons %}
+            <a href="{% url 'lesson_detail' course.pk lessons.0.pk %}" class="btn btn-primary btn-full">▶ Continue Learning</a>
+          {% endif %}
+        {% else %}
+          <form method="post" action="{% url 'enroll_course' course.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-gold btn-full" style="font-size:1rem;">🎓 Enroll Now — Free!</button>
+          </form>
+        {% endif %}
+      {% else %}
+        <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-gold btn-full" style="font-size:1rem; margin-bottom:0.75rem;">🎓 Login to Enroll</a>
+        <a href="{% url 'register' %}" class="btn btn-outline btn-full" style="font-size:0.9rem;">Create Free Account</a>
+      {% endif %}
+      <ul class="feature-list" style="margin-top:1.25rem;">
+        <li>{{ course.lesson_count }} video/text lessons</li>
+        <li>Downloadable PDF notes</li>
+        <li>Quiz assessments</li>
+        <li>Progress tracking</li>
+        <li>Offline access</li>
+        <li>Certificate on completion</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Lessons -->
+<div class="section">
+  <div style="display:grid; grid-template-columns:1fr 320px; gap:2rem; align-items:start;">
+    <div>
+      <h2 class="section-title">📋 Course Curriculum</h2>
+      <p class="section-sub">{{ course.lesson_count }} lessons · {{ course.total_duration }} total</p>
+
+      {% if lessons %}
+      <ul class="lesson-list">
+        {% for lesson in lessons %}
+        <li>
+          {% if is_enrolled %}
+            <a href="{% url 'lesson_detail' course.pk lesson.pk %}" class="lesson-item {% if lesson.id in completed_ids %}completed{% endif %}" data-num="{{ forloop.counter }}">
+              <div style="flex:1;">
+                <div style="font-weight:700; margin-bottom:2px;">{{ lesson.title }}</div>
+                <div style="font-size:0.78rem; color:var(--stone);">⏱ {{ lesson.duration_minutes }} min</div>
+              </div>
+              {% if lesson.pdf_file %}<span style="font-size:0.75rem; color:var(--moss);">📄 PDF</span>{% endif %}
+              {% if lesson.video_file %}<span style="font-size:0.75rem; color:var(--sky);">🎬 Video</span>{% endif %}
+            </a>
+          {% elif lesson.is_free_preview %}
+            <a href="{% url 'lesson_detail' course.pk lesson.pk %}" class="lesson-item" data-num="{{ forloop.counter }}">
+              <div style="flex:1;">
+                <div style="font-weight:700; margin-bottom:2px;">{{ lesson.title }}</div>
+                <div style="font-size:0.78rem; color:var(--stone);">⏱ {{ lesson.duration_minutes }} min</div>
+              </div>
+              <span class="badge badge-moss" style="font-size:0.68rem;">Free Preview</span>
+            </a>
+          {% else %}
+            <div class="lesson-item" data-num="{{ forloop.counter }}" style="opacity:0.55; cursor:not-allowed;">
+              <div style="flex:1;">
+                <div style="font-weight:700; margin-bottom:2px;">{{ lesson.title }}</div>
+                <div style="font-size:0.78rem; color:var(--stone);">⏱ {{ lesson.duration_minutes }} min</div>
+              </div>
+              🔒
+            </div>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+        <div style="text-align:center; padding:2rem; color:var(--stone);">
+          <div style="font-size:2rem;">📭</div>
+          <p>Lessons coming soon!</p>
+        </div>
+      {% endif %}
+
+      <!-- Quizzes -->
+      {% if course.quizzes.all %}
+      <div style="margin-top:2rem;">
+        <h3 style="font-family:'Playfair Display',serif; font-size:1.2rem; color:var(--forest); margin-bottom:1rem;">🧠 Quizzes</h3>
+        {% for quiz in course.quizzes.all %}
+        <div style="background:white; border-radius:12px; padding:1.25rem; box-shadow:var(--shadow); margin-bottom:0.75rem; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-weight:700; color:var(--forest);">{{ quiz.title }}</div>
+            <div style="font-size:0.82rem; color:var(--stone);">{{ quiz.questions.count }} questions</div>
+          </div>
+          {% if is_enrolled %}
+            <a href="{% url 'quiz_view' quiz.pk %}" class="btn btn-primary btn-sm">Take Quiz</a>
+          {% else %}
+            <span style="font-size:0.82rem; color:var(--stone);">Enroll to access</span>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Instructor card -->
+    <div>
+      {% if course.instructor %}
+      <div style="background:white; border-radius:var(--radius); padding:1.5rem; box-shadow:var(--shadow);">
+        <h3 style="font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--forest); margin-bottom:1rem;">👨‍🏫 Instructor</h3>
+        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
+          <div class="avatar-circle" style="width:50px; height:50px; font-size:1.2rem; margin:0;">
+            {{ course.instructor.first_name.0|default:course.instructor.username.0|upper }}
+          </div>
+          <div>
+            <div style="font-weight:800; color:var(--forest);">{{ course.instructor.get_full_name|default:course.instructor.username }}</div>
+            <div style="font-size:0.82rem; color:var(--stone);">Course Instructor</div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Offline box -->
+      <div style="background:linear-gradient(135deg,#d8f3dc,#b7e4c7); border-radius:var(--radius); padding:1.25rem; margin-top:1rem;">
+        <h4 style="color:var(--pine); font-size:0.92rem; margin-bottom:0.5rem;">📥 Offline Access</h4>
+        <p style="font-size:0.83rem; color:#1b4332; line-height:1.5;">Download all lessons, PDFs, and notes to study without internet. Perfect for remote areas.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

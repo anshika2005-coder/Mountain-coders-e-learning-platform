@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<div style="padding:4rem 1rem;background:linear-gradient(135deg,#f0f4f0,#d8f3dc);min-height:80vh;display:flex;align-items:center;justify-content:center;">
+  <div class="form-card" style="width:100%;max-width:540px;">
+    <div style="text-align:center;margin-bottom:1.5rem;">
+      <div style="font-size:3rem;margin-bottom:0.5rem;">🎓</div>
+      <h1 class="form-title">Join Mountain Coders</h1>
+      <p class="form-sub">Free education for every student in the mountains</p>
+    </div>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-row">
+        <div class="form-group">
+          <label>Username *</label>
+          <input type="text" name="username" class="form-control" placeholder="Choose username" required autofocus>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" name="email" class="form-control" placeholder="Optional">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Password *</label>
+          <input type="password" name="password" class="form-control" placeholder="Create password" required>
+        </div>
+        <div class="form-group">
+          <label>Confirm Password *</label>
+          <input type="password" name="password2" class="form-control" placeholder="Repeat password" required>
+        </div>
+      </div>
+      <div style="background:#f5f5f5;border-radius:10px;padding:1rem;margin-bottom:1rem;">
+        <div style="font-size:0.82rem;font-weight:700;color:var(--forest);margin-bottom:0.75rem;">📍 Where are you from?</div>
+        <div class="form-row">
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Village / Town</label>
+            <input type="text" name="village" class="form-control" placeholder="e.g., Munsiyari">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>District</label>
+            <input type="text" name="district" class="form-control" placeholder="e.g., Pithoragarh">
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:0.75rem;margin-bottom:0;">
+          <label>State</label>
+          <select name="state" class="form-control">
+            <option value="Uttarakhand">Uttarakhand</option>
+            <option value="Himachal Pradesh">Himachal Pradesh</option>
+            <option value="Jammu & Kashmir">Jammu & Kashmir</option>
+            <option value="Sikkim">Sikkim</option>
+            <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-gold btn-full" style="font-size:1rem;padding:0.75rem;">
+        🚀 Create Free Account
+      </button>
+    </form>
+    <div style="text-align:center;margin-top:1rem;font-size:0.88rem;color:var(--stone);">
+      Already have an account? <a href="{% url 'login' %}" style="color:var(--pine);font-weight:700;">Login here</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

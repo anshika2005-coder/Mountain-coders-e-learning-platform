@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}{{ quiz.title }}{% endblock %}
+{% block content %}
+<div class="section" style="max-width:700px;">
+  <div style="background:linear-gradient(135deg,var(--forest),var(--pine));color:white;padding:2rem;border-radius:var(--radius);margin-bottom:2rem;">
+    <h1 style="font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;margin-bottom:0.5rem;">🧠 {{ quiz.title }}</h1>
+    {% if quiz.description %}<p style="opacity:0.8;">{{ quiz.description }}</p>{% endif %}
+    <div style="font-size:0.85rem;opacity:0.75;margin-top:0.5rem;">{{ questions.count }} questions</div>
+  </div>
+
+  <form method="post" id="quiz-form">
+    {% csrf_token %}
+    {% for question in questions %}
+    <div class="question-block" style="background:white;border-radius:var(--radius);padding:1.5rem;margin-bottom:1.25rem;box-shadow:var(--shadow);">
+      <p style="font-weight:700;color:var(--forest);font-size:1rem;margin-bottom:1rem;">
+        <span style="background:var(--pine);color:white;border-radius:50%;width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;font-size:0.8rem;margin-right:8px;font-weight:900;">{{ forloop.counter }}</span>
+        {{ question.text }}
+      </p>
+      {% for opt, label in "A,B,C,D"|split:"," %}
+      {% endfor %}
+      <label class="quiz-option"><input type="radio" name="q_{{ question.id }}" value="A"> <span>A. {{ question.option_a }}</span></label>
+      <label class="quiz-option"><input type="radio" name="q_{{ question.id }}" value="B"> <span>B. {{ question.option_b }}</span></label>
+      <label class="quiz-option"><input type="radio" name="q_{{ question.id }}" value="C"> <span>C. {{ question.option_c }}</span></label>
+      <label class="quiz-option"><input type="radio" name="q_{{ question.id }}" value="D"> <span>D. {{ question.option_d }}</span></label>
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary" style="font-size:1rem;padding:0.85rem 2rem;">Submit Quiz 🚀</button>
+  </form>
+</div>
+{% endblock %}

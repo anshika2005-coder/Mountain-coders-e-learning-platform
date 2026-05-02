@@ -1,0 +1,101 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Mountain Coders{% endblock %} | Offline Learning for Rural Students</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⛰️</text></svg>">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <meta name="description" content="Mountain Coders - Quality education for students in rural and mountain areas. Offline-first learning platform.">
+  <!-- PWA manifest for offline support -->
+  <meta name="theme-color" content="#1a3d2b">
+</head>
+<body>
+
+<nav>
+  <a href="{% url 'home' %}" class="nav-brand">
+    <span class="logo-icon">⛰️</span>
+    <div>
+      <span class="brand-text">Mountain Coders</span>
+      <span class="brand-sub">Learn Anywhere · Anytime</span>
+    </div>
+  </a>
+  <div class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </div>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="{% url 'home' %}">🏠 Home</a></li>
+    <li><a href="{% url 'course_list' %}">📚 Courses</a></li>
+    {% if user.is_authenticated %}
+      <li><a href="{% url 'my_courses' %}">🎓 My Learning</a></li>
+      <li><a href="{% url 'profile' %}">👤 {{ user.username }}</a></li>
+      <li><a href="{% url 'logout' %}" class="nav-btn btn">Logout</a></li>
+    {% else %}
+      <li><a href="{% url 'login' %}" class="nav-btn-outline btn">Login</a></li>
+      <li><a href="{% url 'register' %}" class="nav-btn btn">Join Free</a></li>
+    {% endif %}
+  </ul>
+</nav>
+
+{% if messages %}
+<div class="alerts">
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags|default:'info' }}">
+      {% if message.tags == 'success' %}✅{% elif message.tags == 'error' %}❌{% else %}ℹ️{% endif %}
+      {{ message }}
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<main>{% block content %}{% endblock %}</main>
+
+<footer>
+  <div class="footer-inner">
+    <div>
+      <span class="footer-brand-text">⛰️ Mountain Coders</span>
+      <p class="footer-tagline">Bringing quality education to students in remote mountain and rural areas of India. Our offline-first platform ensures learning never stops, even without internet.</p>
+      <div class="offline-indicator">
+        <div class="offline-dot"></div>
+        <span class="offline-label">Offline Ready</span>
+      </div>
+    </div>
+    <div>
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="{% url 'home' %}">Home</a></li>
+        <li><a href="{% url 'course_list' %}">All Courses</a></li>
+        {% if user.is_authenticated %}
+        <li><a href="{% url 'my_courses' %}">My Courses</a></li>
+        <li><a href="{% url 'profile' %}">My Profile</a></li>
+        {% else %}
+        <li><a href="{% url 'register' %}">Register</a></li>
+        <li><a href="{% url 'login' %}">Login</a></li>
+        {% endif %}
+      </ul>
+    </div>
+    <div>
+      <h4>Support</h4>
+      <ul>
+        <li><a href="#">How It Works</a></li>
+        <li><a href="#">Offline Guide</a></li>
+        <li><a href="#">For Teachers</a></li>
+        <li><a href="#">Contact Us</a></li>
+      </ul>
+      <div style="margin-top:1.5rem; font-size:0.82rem; color:rgba(255,255,255,0.5);">
+        📞 Helpline: 1800-XXX-XXXX<br>
+        📧 help@mountaincoders.in
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2024 Mountain Coders. All rights reserved.</span>
+    <span>Made with ❤️ for rural India</span>
+  </div>
+</footer>
+
+<script src="{% static 'js/main.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

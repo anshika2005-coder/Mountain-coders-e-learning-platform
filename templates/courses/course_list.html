@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block title %}All Courses{% endblock %}
+{% block content %}
+
+<div style="background: var(--forest); color:white; padding:3rem 2rem 2rem;">
+  <div style="max-width:1100px; margin:0 auto;">
+    <h1 style="font-family:'Playfair Display',serif; font-size:2rem; font-weight:900; margin-bottom:0.4rem;">📚 All Courses</h1>
+    <p style="opacity:0.75;">{{ courses.count }} courses available for offline learning</p>
+  </div>
+</div>
+
+<div class="section">
+  <!-- Search & Filters -->
+  <div class="search-bar">
+    <input type="text" id="course-search" placeholder="🔍 Search courses by name or topic..." value="{{ query }}">
+    <button class="btn btn-primary btn-sm" onclick="document.getElementById('filter-form').submit()">Search</button>
+  </div>
+
+  <form id="filter-form" method="get" style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem; align-items:center;">
+    <input type="hidden" name="q" id="q-hidden">
+    <select name="category" class="form-control" style="width:auto; min-width:160px;" onchange="this.form.submit()">
+      <option value="">📂 All Categories</option>
+      {% for cat in categories %}
+        <option value="{{ cat.id }}" {% if selected_cat == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.icon }} {{ cat.name }}</option>
+      {% endfor %}
+    </select>
+    <select name="level" class="form-control" style="width:auto; min-width:140px;" onchange="this.form.submit()">
+      <option value="">📊 All Levels</option>
+      <option value="beginner" {% if selected_level == 'beginner' %}selected{% endif %}>🟢 Beginner</option>
+      <option value="intermediate" {% if selected_level == 'intermediate' %}selected{% endif %}>🟡 Intermediate</option>
+      <option value="advanced" {% if selected_level == 'advanced' %}selected{% endif %}>🔴 Advanced</option>
+    </select>
+    {% if selected_cat or selected_level or query %}
+      <a href="{% url 'course_list' %}" class="btn btn-outline btn-sm">✕ Clear filters</a>
+    {% endif %}
+  </form>
+
+  <!-- Category chips -->
+  <div class="category-chips">
+    <a href="{% url 'course_list' %}" class="chip {% if not selected_cat %}active{% endif %}">🌐 All</a>
+    {% for cat in categories %}
+      <a href="{% url 'course_list' %}?category={{ cat.id }}" class="chip {% if selected_cat == cat.id|stringformat:'s' %}active{% endif %}">{{ cat.icon }} {{ cat.name }}</a>
+    {% endfor %}
+  </div>
+
+  <div class="course-grid">
+    {% for course in courses %}
+    <a href="{% url 'course_detail' course.pk %}" class="course-card">
+      <div class="course-thumb">
+        {% if course.thumbnail %}
+          <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}" style="width:100%;height:100%;object-fit:cover;">
+        {% else %}
+          {{ course.category.icon|default:"📚" }}
+        {% endif %}
+      </div>
+      <div class="course-body">
+        <div class="course-meta">
+          {% if course.category %}<span class="badge badge-moss">{{ course.category.name }}</span>{% endif %}
+          <span class="badge {% if course.level == 'beginner' %}badge-sky{% elif course.level == 'intermediate' %}badge-gold{% else %}badge-earth{% endif %}">
+            {{ course.get_level_display }}
+          </span>
+          {% if course.is_offline_available %}
+          <span class="offline-badge">📥 Offline</span>
+          {% endif %}
+        </div>
+        <h3 class="course-title">{{ course.title }}</h3>
+        <p class="course-desc">{{ course.description|truncatewords:20 }}</p>
+        {% if course.instructor %}
+        <div style="font-size:0.82rem; color:var(--stone); font-weight:600; margin-bottom:0.5rem;">
+          👨‍🏫 {{ course.instructor.get_full_name|default:course.instructor.username }}
+        </div>
+        {% endif %}
+        <div class="course-footer">
+          <span>📖 {{ course.lesson_count }} lessons</span>
+          <span>⏱ {{ course.total_duration }}</span>
+          <span>🗣 {{ course.language }}</span>
+        </div>
+      </div>
+    </a>
+    {% empty %}
+    <div style="grid-column:1/-1; text-align:center; padding:4rem 2rem; color:var(--stone);">
+      <div style="font-size:4rem; margin-bottom:1rem;">🔍</div>
+      <h3 style="margin-bottom:0.5rem;">No courses found</h3>
+      <p>Try changing your search or filters.</p>
+      <a href="{% url 'course_list' %}" class="btn btn-primary" style="margin-top:1rem;">Clear Search</a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+document.getElementById('course-search').addEventListener('input', function() {
+  document.getElementById('q-hidden').value = this.value;
+});
+</script>
+{% endblock %}
